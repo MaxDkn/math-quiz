@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Math Quiz WASM</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 300px;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+
+    #output {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>WASM Reverse Demo</h1>
+
+  <input id="input" type="text" placeholder="Enter text" />
+  <button id="clickMe">Reverse</button>
+
+  <div id="output"></div>
+
+  <!-- IMPORTANT: type="module" -->
+  <script type="module" src="./index.js"></script>
+
+</body>
+</html>
+

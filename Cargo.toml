@@ -1,0 +1,13 @@
+[package]
+name = "math-quiz"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "github.com/MaxDkn/math-quiz"
+description = "The goal is to create an interactive quiz of mathematics, using wasm to get only static files."
+[dependencies]
+wasm-bindgen = "0.2"
+rand = { version = "0.8", default-features = false, features = ["small_rng"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
