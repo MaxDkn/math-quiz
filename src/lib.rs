@@ -19,19 +19,13 @@ pub fn init_rng(seed: u64) {
 	});
 }
 
-#[wasm_bindgen]
-pub fn reverse(word: &str) -> String {
-	let reversed_word: String = word.chars().rev().collect();
-	format!("The reverse of {} is {}", word, reversed_word)
-}
-
-#[wasm_bindgen]
-pub fn random_numbers(count: usize) -> Vec<u32> {
-	RNG.with(|rng| {
-		let mut r = rng.borrow_mut();
-		(0..count).map(|_| r.gen_range(0..100)).collect()
-	})
-}
+// #[wasm_bindgen]
+// pub fn random_numbers(count: usize) -> Vec<u32> {
+// 	RNG.with(|rng| {
+// 		let mut r = rng.borrow_mut();
+// 		(0..count).map(|_| r.random_range(0..100)).collect()
+// 	})
+// }
 
 #[wasm_bindgen]
 pub fn generate() -> Result<JsValue, JsValue> {

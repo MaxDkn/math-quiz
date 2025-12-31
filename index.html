@@ -1,130 +1,323 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" data-bs-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <title>Math Quiz WASM</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathQuiz UI - Fixed Hover & Shuffle</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      /* Palette de couleurs */
+      --button-color-1: #FFCDB2;
+      --button-color-2: #FFB4A2;
+      --button-color-3: #E5989B;
+      --button-color-4: #B5828C;
+
+      --question-bg: #f9f9f9;
+      --question-text: #000;
+      --question-border: #000;
+
+      --popup-bg: #ffffff;
+      --popup-text: #000000;
+    }
+
+    html[data-bs-theme="dark"] {
+      --button-color-1: #09122C;
+      --button-color-2: #872341;
+      --button-color-3: #BE3144;
+      --button-color-4: #E17564;
+
+      --question-bg: #242323;
+      --question-text: #fff;
+      --question-border: #fff;
+
+      --popup-bg: #333;
+      --popup-text: #fff;
+    }
+
+    body {
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 1rem;
+    }
+
+    .question-box {
+      border: 2px solid var(--question-border);
+      padding: 10px;
+      margin: 10px;
+      font-weight: bold;
+      background-color: var(--question-bg);
+      color: var(--question-text);
+      font-size: calc(1rem + 1vw);
+      border-radius: 8px;
+    }
+
+    .answers-container {
+      flex: 1;
+      margin: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .answer-row {
+      display: flex;
+      flex: 1;
+      gap: 10px;
+    }
+
+    .answer-col {
+      flex: 1;
+    }
+
+    /* CORRECTION DU HOVER ET COULEUR DYNAMIQUE
+       On utilise la variable --btn-bg qui sera injectée par JS
+    */
+    .btn-answer {
+      width: 100%;
+      height: 100%;
+      font-size: calc(1rem + 0.5vw);
+      white-space: normal;
+      word-break: normal;
+      border: none;
+      color: var(--question-text);
+      transition: transform 0.1s, filter 0.2s;
+
+      /* Utilisation de la variable dynamique */
+      background-color: var(--btn-bg);
+    }
+
+    /* Override forcé de Bootstrap pour le hover/active */
+    .btn-answer:hover {
+      background-color: var(--btn-bg) !important;
+      color: var(--question-text) !important;
+      filter: brightness(0.95); /* Assombrit légèrement au lieu de devenir gris */
+      transform: scale(1.01);
+    }
+
+    .btn-answer:active {
+      background-color: var(--btn-bg) !important;
+      color: var(--question-text) !important;
+      transform: scale(0.98);
+      filter: brightness(0.9);
+      border-color: transparent;
+    }
+
+    /* Styles de la popup */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(142, 22, 22, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1050;
+      cursor: pointer;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.2s linear;
+    }
+
+    .popup-overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .popup-content {
+      background-color: var(--popup-bg);
+      color: var(--popup-text);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 80%;
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div id="app" class="container py-5 text-center"></div>
+<div class="container main-container">
 
-<script type="module">
-  import init, { init_rng, generate } from "./pkg/math_quiz.js";
+  <div id="question-text" class="question-box text-center">
+    Chargement...
+  </div>
 
-  let currentQuestion = 0;
-  let score = 0;
-  const totalQuestions = 10;
-  const appDiv = document.getElementById("app");
+  <div class="answers-container">
+    <div class="answer-row">
+      <div class="answer-col">
+        <button class="btn btn-answer" onclick="handleWrongAnswer()">
+          <span class="latex-render">$x = 1$</span>
+        </button>
+      </div>
+      <div class="answer-col">
+        <button class="btn btn-answer" onclick="handleCorrectAnswer()">
+          <span class="latex-render">$x = 2$</span>
+        </button>
+      </div>
+    </div>
+    <div class="answer-row">
+      <div class="answer-col">
+        <button class="btn btn-answer" onclick="handleWrongAnswer()">
+          <span class="latex-render">$x = 3$</span>
+        </button>
+      </div>
+      <div class="answer-col">
+        <button class="btn btn-answer" onclick="handleWrongAnswer()">
+          <span class="latex-render">$x = 4$</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  async function run() {
-    await init();
-    init_rng(BigInt(Date.now()));
-    showStartScreen();
+<div id="error-popup" class="popup-overlay" onclick="closePopup()">
+  <div class="popup-content">
+    <h5 style="color: red; margin-bottom: 15px;">Erreur de Réponse</h5>
+    <p id="popup-message">
+      Vous vous êtes trompé, la bonne réponse était <span id="correct-answer-display"></span>
+    </p>
+    <small class="text-muted">(Cliquez pour continuer)</small>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<script>
+  // 1. Thème
+  function updateTheme() {
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
   }
+  updateTheme();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
 
-  function clearApp() {
-    appDiv.innerHTML = "";
-  }
+  // 2. KaTeX Helper
+  function renderMathInElement(element, text) {
+    element.innerHTML = "";
+    if (!text) return;
 
-  function parseMathText(text, container) {
-    container.innerHTML = "";
     const parts = text.split(/(\$[^$]+\$)/g);
+
     parts.forEach(part => {
       if (part.startsWith("$") && part.endsWith("$")) {
+        const latexContent = part.slice(1, -1);
         const span = document.createElement("span");
-        katex.render(part.slice(1,-1), span, { throwOnError: false, strict: false });
-        container.appendChild(span);
-      } else {
-        container.appendChild(document.createTextNode(part));
+        span.style.whiteSpace = "nowrap";
+        span.style.display = "inline-block";
+
+        try {
+          katex.render(latexContent, span, {
+            throwOnError: false,
+            strict: false
+          });
+          element.appendChild(span);
+        } catch (e) {
+          element.appendChild(document.createTextNode(part));
+        }
+      } else if (part.length > 0) {
+        element.appendChild(document.createTextNode(part));
       }
     });
   }
 
-  function showStartScreen() {
-    clearApp();
+  function renderAllMath() {
+    // Rendus initiaux si nécessaire (sera écrasé par simulateNextQuestion)
+    const correctEl = document.getElementById('correct-answer-display');
+    renderMathInElement(correctEl, "$x = 2$");
 
-    const title = document.createElement("h1");
-    title.className = "mb-4";
-    title.innerText = "Math Quiz";
-
-    const btn = document.createElement("button");
-    btn.className = "btn btn-primary btn-lg";
-    btn.innerText = "Commencer le jeu";
-    btn.onclick = () => {
-      score = 0;
-      currentQuestion = 0;
-      showGameScreen();
-    };
-
-    appDiv.appendChild(title);
-    appDiv.appendChild(btn);
-  }
-
-  function showGameScreen() {
-    clearApp();
-    currentQuestion++;
-    const question = generate();
-
-    const titleDiv = document.createElement("h2");
-    titleDiv.className = "mb-4";
-    parseMathText(question.text, titleDiv);
-    appDiv.appendChild(titleDiv);
-
-    const answersDiv = document.createElement("div");
-    answersDiv.className = "row row-cols-2 g-3 justify-content-center";
-    appDiv.appendChild(answersDiv);
-
-    let answersArray = [];
-    if (question.answers.Close) {
-      answersArray = question.answers.Close.map(b => b ? "Oui" : "Non");
-    } else if (question.answers.Open) {
-      answersArray = question.answers.Open;
-    }
-
-    answersArray.forEach((ans, i) => {
-      const col = document.createElement("div");
-      col.className = "col d-flex";
-
-      const btn = document.createElement("button");
-      btn.className = "btn btn-outline-primary flex-fill";
-      btn.style.fontSize = "1.2rem";
-      parseMathText(ans, btn);
-      btn.onclick = () => {
-        if (i === question.index_answer) score++;
-        if (currentQuestion < totalQuestions) {
-          showGameScreen();
-        } else {
-          showEndScreen();
-        }
-      };
-
-      col.appendChild(btn);
-      answersDiv.appendChild(col);
+    document.querySelectorAll('.latex-render').forEach(el => {
+      renderMathInElement(el, el.innerText);
     });
   }
 
-  function showEndScreen() {
-    clearApp();
+  // 3. Logique de mélange des couleurs
+  const COLORS = [
+    "var(--button-color-1)",
+    "var(--button-color-2)",
+    "var(--button-color-3)",
+    "var(--button-color-4)"
+  ];
 
-    const title = document.createElement("h1");
-    title.className = "mb-4";
-    title.innerText = `Score final : ${score} / ${totalQuestions}`;
-
-    const btn = document.createElement("button");
-    btn.className = "btn btn-success btn-lg";
-    btn.innerText = "Rejouer";
-    btn.onclick = showStartScreen;
-
-    appDiv.appendChild(title);
-    appDiv.appendChild(btn);
+  function shuffleArray(array) {
+    let currentIndex = array.length, randomIndex;
+    // Fisher-Yates shuffle
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
   }
 
-  run();
-</script>
+  function assignRandomColors() {
+    const buttons = document.querySelectorAll('.btn-answer');
+    // On copie le tableau pour ne pas modifier l'original, et on le mélange
+    const shuffledColors = shuffleArray([...COLORS]);
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    buttons.forEach((btn, index) => {
+      // On assigne la couleur via une variable CSS locale sur l'élément
+      // L'opérateur modulo (%) assure qu'on boucle si on avait plus de boutons que de couleurs
+      btn.style.setProperty('--btn-bg', shuffledColors[index % shuffledColors.length]);
+    });
+  }
+
+
+  // 4. Logique du jeu simulé
+  const popup = document.getElementById('error-popup');
+  const questionText = document.getElementById('question-text');
+
+  function handleWrongAnswer() {
+    popup.classList.add('show');
+  }
+
+  function closePopup() {
+    popup.classList.remove('show');
+    simulateNextQuestion();
+  }
+
+  function handleCorrectAnswer() {
+    simulateNextQuestion();
+  }
+
+  let questionCounter = 0; // Commencera à 1 au premier appel
+  function simulateNextQuestion() {
+    questionCounter++;
+
+    // 1. Mélanger les couleurs à chaque nouvelle question
+    assignRandomColors();
+
+    // 2. Changer le texte (Simulation)
+    let newMath = (questionCounter % 2 !== 0)
+            ? "Question " + questionCounter + " : Résoudre $\\int_{0}^{\\pi} \\sin(x) dx = ?$"
+            : "Question " + questionCounter + " : Calculer $\\lim_{x \\to \\infty} \\frac{1}{x}$";
+
+    // Animation simple opacité
+    questionText.style.opacity = 0;
+    setTimeout(() => {
+      renderMathInElement(questionText, newMath);
+      questionText.style.opacity = 1;
+    }, 150);
+  }
+
+  // Initialisation au chargement
+  document.addEventListener("DOMContentLoaded", () => {
+    renderAllMath();
+    simulateNextQuestion(); // Lance la première question et assigne les couleurs
+  });
+</script>
 </body>
 </html>
