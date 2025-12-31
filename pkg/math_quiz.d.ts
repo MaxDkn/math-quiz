@@ -1,6 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export function generate(): any;
+
 export function init_rng(seed: bigint): void;
 
 export function random_numbers(count: number): Uint32Array;
@@ -11,13 +13,15 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly generate: () => [number, number, number];
+  readonly init_rng: (a: bigint) => void;
   readonly random_numbers: (a: number) => [number, number];
   readonly reverse: (a: number, b: number) => [number, number];
-  readonly init_rng: (a: bigint) => void;
   readonly __wbindgen_externrefs: WebAssembly.Table;
+  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
+  readonly __externref_table_dealloc: (a: number) => void;
   readonly __wbindgen_start: () => void;
 }
 

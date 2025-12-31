@@ -63,6 +63,12 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_externrefs.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+
 let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 cachedTextDecoder.decode();
 const MAX_SAFARI_DECODE_BYTES = 2146435072;
@@ -91,6 +97,17 @@ if (!('encodeInto' in cachedTextEncoder)) {
 }
 
 let WASM_VECTOR_LEN = 0;
+
+/**
+ * @returns {any}
+ */
+export function generate() {
+    const ret = wasm.generate();
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
 
 /**
  * @param {bigint} seed
@@ -164,6 +181,33 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbg___wbindgen_throw_dd24417ed36fc46e = function(arg0, arg1) {
+        throw new Error(getStringFromWasm0(arg0, arg1));
+    };
+    imports.wbg.__wbg_new_1ba21ce319a06297 = function() {
+        const ret = new Object();
+        return ret;
+    };
+    imports.wbg.__wbg_new_25f239778d6112b9 = function() {
+        const ret = new Array();
+        return ret;
+    };
+    imports.wbg.__wbg_set_3fda3bac07393de4 = function(arg0, arg1, arg2) {
+        arg0[arg1] = arg2;
+    };
+    imports.wbg.__wbg_set_7df433eea03a5c14 = function(arg0, arg1, arg2) {
+        arg0[arg1 >>> 0] = arg2;
+    };
+    imports.wbg.__wbindgen_cast_2241b6af4c4b2941 = function(arg0, arg1) {
+        // Cast intrinsic for `Ref(String) -> Externref`.
+        const ret = getStringFromWasm0(arg0, arg1);
+        return ret;
+    };
+    imports.wbg.__wbindgen_cast_d6cd19b81560fd6e = function(arg0) {
+        // Cast intrinsic for `F64 -> Externref`.
+        const ret = arg0;
+        return ret;
+    };
     imports.wbg.__wbindgen_init_externref_table = function() {
         const table = wasm.__wbindgen_externrefs;
         const offset = table.grow(4);

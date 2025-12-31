@@ -3,43 +3,128 @@
 <head>
   <meta charset="UTF-8" />
   <title>Math Quiz WASM</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-    }
-
-    input {
-      padding: 0.5rem;
-      font-size: 1rem;
-      width: 300px;
-    }
-
-    button {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      margin-left: 0.5rem;
-      cursor: pointer;
-    }
-
-    #output {
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
 </head>
-<body>
+<body class="bg-light">
 
-  <h1>WASM Reverse Demo</h1>
+<div id="app" class="container py-5 text-center"></div>
 
-  <input id="input" type="text" placeholder="Enter text" />
-  <button id="clickMe">Reverse</button>
+<script type="module">
+  import init, { init_rng, generate } from "./pkg/math_quiz.js";
 
-  <div id="output"></div>
+  let currentQuestion = 0;
+  let score = 0;
+  const totalQuestions = 10;
+  const appDiv = document.getElementById("app");
 
-  <!-- IMPORTANT: type="module" -->
-  <script type="module" src="./index.js"></script>
+  async function run() {
+    await init();
+    init_rng(BigInt(Date.now()));
+    showStartScreen();
+  }
 
+  function clearApp() {
+    appDiv.innerHTML = "";
+  }
+
+  function parseMathText(text, container) {
+    container.innerHTML = "";
+    const parts = text.split(/(\$[^$]+\$)/g);
+    parts.forEach(part => {
+      if (part.startsWith("$") && part.endsWith("$")) {
+        const span = document.createElement("span");
+        katex.render(part.slice(1,-1), span, { throwOnError: false, strict: false });
+        container.appendChild(span);
+      } else {
+        container.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
+  function showStartScreen() {
+    clearApp();
+
+    const title = document.createElement("h1");
+    title.className = "mb-4";
+    title.innerText = "Math Quiz";
+
+    const btn = document.createElement("button");
+    btn.className = "btn btn-primary btn-lg";
+    btn.innerText = "Commencer le jeu";
+    btn.onclick = () => {
+      score = 0;
+      currentQuestion = 0;
+      showGameScreen();
+    };
+
+    appDiv.appendChild(title);
+    appDiv.appendChild(btn);
+  }
+
+  function showGameScreen() {
+    clearApp();
+    currentQuestion++;
+    const question = generate();
+
+    const titleDiv = document.createElement("h2");
+    titleDiv.className = "mb-4";
+    parseMathText(question.text, titleDiv);
+    appDiv.appendChild(titleDiv);
+
+    const answersDiv = document.createElement("div");
+    answersDiv.className = "row row-cols-2 g-3 justify-content-center";
+    appDiv.appendChild(answersDiv);
+
+    let answersArray = [];
+    if (question.answers.Close) {
+      answersArray = question.answers.Close.map(b => b ? "Oui" : "Non");
+    } else if (question.answers.Open) {
+      answersArray = question.answers.Open;
+    }
+
+    answersArray.forEach((ans, i) => {
+      const col = document.createElement("div");
+      col.className = "col d-flex";
+
+      const btn = document.createElement("button");
+      btn.className = "btn btn-outline-primary flex-fill";
+      btn.style.fontSize = "1.2rem";
+      parseMathText(ans, btn);
+      btn.onclick = () => {
+        if (i === question.index_answer) score++;
+        if (currentQuestion < totalQuestions) {
+          showGameScreen();
+        } else {
+          showEndScreen();
+        }
+      };
+
+      col.appendChild(btn);
+      answersDiv.appendChild(col);
+    });
+  }
+
+  function showEndScreen() {
+    clearApp();
+
+    const title = document.createElement("h1");
+    title.className = "mb-4";
+    title.innerText = `Score final : ${score} / ${totalQuestions}`;
+
+    const btn = document.createElement("button");
+    btn.className = "btn btn-success btn-lg";
+    btn.innerText = "Rejouer";
+    btn.onclick = showStartScreen;
+
+    appDiv.appendChild(title);
+    appDiv.appendChild(btn);
+  }
+
+  run();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
