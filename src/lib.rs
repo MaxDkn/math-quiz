@@ -1,6 +1,6 @@
 mod models;
 
-use rand::Rng;
+// use rand::Rng;
 use rand::SeedableRng;
 use std::cell::RefCell;
 use rand::rngs::SmallRng;
@@ -31,7 +31,7 @@ pub fn init_rng(seed: u64) {
 pub fn generate() -> Result<JsValue, JsValue> {
 	let question = Question {
 		text: "$7$ divise-t'il $63$ ?".to_string(),
-		answers: Answers::Close([true, false]),
+		answers: Answers::Open(["true".to_string(), "false".to_string(), "$1$".to_string(), "$2$".to_string()]),
 		index_answer: 0,
 	};
 	Ok(serde_wasm_bindgen::to_value(&question)?)
