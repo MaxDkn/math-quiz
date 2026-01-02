@@ -1,12 +1,12 @@
 use serde::Serialize;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize)]
 pub enum Answers {
     Close([bool; 2]),
     Open([String; 4]),
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize)]
 pub struct Question {
     pub text: String,
     pub answers: Answers,

@@ -1,12 +1,15 @@
 {
   "name": "math-quiz",
   "type": "module",
+  "collaborators": [
+    "Max Deckmyn"
+  ],
   "description": "The goal is to create an interactive quiz of mathematics, using wasm to get only static files.",
   "version": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "github.com/MaxDkn/math-quiz"
+    "url": "https://github.com/MaxDkn/math-quiz"
   },
   "files": [
     "math_quiz_bg.wasm",
