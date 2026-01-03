@@ -1,7 +1,7 @@
+mod tools;
 mod models;
 mod subjects;
 
-// use rand::Rng;
 use rand::SeedableRng;
 use std::cell::RefCell;
 use rand::rngs::SmallRng;
@@ -22,14 +22,8 @@ pub fn init_rng(seed: u64) {
 
 #[wasm_bindgen]
 pub fn generate() -> Result<JsValue, JsValue> {
-	let question = &arithmetic::generate();
-	Ok(serde_wasm_bindgen::to_value(&question)?)
+	RNG.with(|rng| {
+		let question = &arithmetic::generate(&mut rng.borrow_mut());
+		Ok(serde_wasm_bindgen::to_value(&question)?)
+	})
 }
-
-// #[wasm_bindgen]
-// pub fn random_numbers(count: usize) -> Vec<u32> {
-// 	RNG.with(|rng| {
-// 		let mut r = rng.borrow_mut();
-// 		(0..count).map(|_| r.random_range(0..100)).collect()
-// 	})
-// }
