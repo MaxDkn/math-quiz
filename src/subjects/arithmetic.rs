@@ -1,10 +1,13 @@
-use crate::tools::function::{ fill_unique_random, format_answers, gcd };
-
 use crate::models::{Answer, Question};
+use crate::tools::{ fill_unique_random, format_answers, gcd };
+
 use rand::Rng;
-use rand::rngs::SmallRng;
 use std::ops::Div;
+use rand::rngs::SmallRng;
 use rand::prelude::IndexedRandom;
+
+// Kind of question's number to weight probabilities
+pub const NUMBER_OF_QUESTION: usize = 6;
 
 fn q_is_square(rng: &mut SmallRng) -> Question {
     const MIN: usize = 9; const MAX: usize = 169; // numbers here has to be a perfect square!
@@ -225,7 +228,7 @@ fn q_conv_bin(rng: &mut SmallRng) -> Question {
 pub fn generate(rng: &mut SmallRng) -> Question {
     let x: bool = rng.random();
 
-    match rng.random_range(0..6) {
+    match rng.random_range(0..NUMBER_OF_QUESTION) {
         0 => q_is_square(rng),
         1 => q_is_prime(rng),
         2 => q_div_rem(rng),

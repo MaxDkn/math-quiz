@@ -90,6 +90,10 @@ function __wbg_get_imports() {
         const ret = Error(getStringFromWasm0(arg0, arg1));
         return ret;
     };
+    imports.wbg.__wbg_Number_2d1dcfcf4ec51736 = function(arg0) {
+        const ret = Number(arg0);
+        return ret;
+    };
     imports.wbg.__wbg___wbindgen_throw_dd24417ed36fc46e = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };
