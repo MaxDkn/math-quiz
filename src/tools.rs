@@ -46,18 +46,18 @@ pub fn gcd<T>(
     a
 }
 
-    // pub fn pythagorean_triplet(min: usize, max: usize) -> Vec<(usize, usize, usize)> {
-    //     (min..=max)
-    //         .flat_map(|i| {
-    //             (i..=max).filter_map(move |j| {
-    //                 let sum_sq = i * i + j * j;
-    //                 let root = (sum_sq as f64).sqrt() as usize; // racine entière
-    //                 if sum_sq < max*max && root * root == sum_sq {
-    //                     Some((i, j, i * j))
-    //                 } else {
-    //                     None
-    //                 }
-    //             })
-    //         })
-    //         .collect()
-    // }
+pub fn pythagorean_triplet(min: usize, max: usize) -> Vec<(usize, usize, usize)> {
+    (min..=max)
+        .flat_map(|i| {
+            (i..=max).filter_map(move |j| {
+                let sum_sq = i * i + j * j;
+                let root = (sum_sq as f64).sqrt() as usize; // racine entière
+                if sum_sq < max*max && root * root == sum_sq {
+                    Some((i, j, i * j))
+                } else {
+                    None
+                }
+            })
+        })
+        .collect()
+}

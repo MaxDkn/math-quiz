@@ -1,9 +1,8 @@
+pub mod arithmetic; pub mod geometry;
+
 use rand::Rng;
 use rand::rngs::SmallRng;
 use crate::models::Question;
-
-pub mod arithmetic;
-pub mod geometry;
 
 pub fn generate(rng: &mut SmallRng) -> Question {
     const WEIGHT: [usize; 2] = [
@@ -15,6 +14,6 @@ pub fn generate(rng: &mut SmallRng) -> Question {
         n if n < arithmetic::NUMBER_OF_QUESTION => {
             arithmetic::generate(rng)
         }
-        _ => geometry::generate(rng),
+        _ => geometry::generate(rng)
     }
 }
